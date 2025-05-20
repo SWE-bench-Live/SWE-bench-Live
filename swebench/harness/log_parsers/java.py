@@ -1,9 +1,13 @@
 import re
+from typing import TYPE_CHECKING
+
 from swebench.harness.constants import TestStatus
-from swebench.harness.test_spec.test_spec import TestSpec
+
+if TYPE_CHECKING:
+    from swebench.harness.test_spec.test_spec import TestSpec
 
 
-def parse_log_maven(log: str, test_spec: TestSpec) -> dict[str, str]:
+def parse_log_maven(log: str, test_spec: "TestSpec") -> dict[str, str]:
     """
     Parser for test logs generated with 'mvn test'.
     Annoyingly maven will not print the tests that have succeeded. For this log
@@ -39,7 +43,7 @@ def parse_log_maven(log: str, test_spec: TestSpec) -> dict[str, str]:
     return test_status_map
 
 
-def parse_log_ant(log: str, test_spec: TestSpec) -> dict[str, str]:
+def parse_log_ant(log: str, test_spec: "TestSpec") -> dict[str, str]:
     test_status_map = {}
 
     pattern = r"^\s*\[junit\]\s+\[(PASS|FAIL|ERR)\]\s+(.*)$"
@@ -56,7 +60,7 @@ def parse_log_ant(log: str, test_spec: TestSpec) -> dict[str, str]:
     return test_status_map
 
 
-def parse_log_gradle_custom(log: str, test_spec: TestSpec) -> dict[str, str]:
+def parse_log_gradle_custom(log: str, test_spec: "TestSpec") -> dict[str, str]:
     """
     Parser for test logs generated with 'gradle test'. Assumes that the
     pre-install script to update the gradle config has run.

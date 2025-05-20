@@ -44,7 +44,11 @@ def make_eval_script_list(
     """
     Applies the test patch and runs the tests.
     """
-    ext = MAP_REPO_TO_EXT[instance["repo"]]
+    if instance.get("log_parser"):
+        # indicating we are using swe-bench-live
+        ext = "common"
+    else:
+        ext = MAP_REPO_TO_EXT.get(instance["repo"], "common")
     common_func = make_eval_script_list_common
     func = {
         "js": make_eval_script_list_js,

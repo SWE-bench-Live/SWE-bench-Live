@@ -10,6 +10,8 @@ from swebench.harness.utils import get_modified_files
 
 
 def get_test_cmds(instance) -> list:
+    if instance.get("test_cmds"):
+        return instance["test_cmds"]
     test_cmd = MAP_REPO_VERSION_TO_SPECS[instance["repo"]][instance["version"]][
         "test_cmd"
     ]

@@ -1,10 +1,13 @@
 import re
+from typing import TYPE_CHECKING
 
 from swebench.harness.constants import TestStatus
-from swebench.harness.test_spec.test_spec import TestSpec
+
+if TYPE_CHECKING:
+    from swebench.harness.test_spec.test_spec import TestSpec
 
 
-def parse_log_minitest(log: str, test_spec: TestSpec) -> dict[str, str]:
+def parse_log_minitest(log: str, test_spec: "TestSpec") -> dict[str, str]:
     """
     Args:
         log (str): log content
@@ -27,7 +30,7 @@ def parse_log_minitest(log: str, test_spec: TestSpec) -> dict[str, str]:
     return test_status_map
 
 
-def parse_log_cucumber(log: str, test_spec: TestSpec) -> dict[str, str]:
+def parse_log_cucumber(log: str, test_spec: "TestSpec") -> dict[str, str]:
     """
     Assumes --format progress is used.
     """
@@ -47,7 +50,7 @@ def parse_log_cucumber(log: str, test_spec: TestSpec) -> dict[str, str]:
     return test_status_map
 
 
-def parse_log_ruby_unit(log: str, test_spec: TestSpec) -> dict[str, str]:
+def parse_log_ruby_unit(log: str, test_spec: "TestSpec") -> dict[str, str]:
     test_status_map = {}
 
     pattern = r"^\s*(?:test: )?(.+):\s+(\.|E\b|F\b|O\b)"
@@ -66,7 +69,7 @@ def parse_log_ruby_unit(log: str, test_spec: TestSpec) -> dict[str, str]:
     return test_status_map
 
 
-def parse_log_rspec_transformed_json(log: str, test_spec: TestSpec) -> dict[str, str]:
+def parse_log_rspec_transformed_json(log: str, test_spec: "TestSpec") -> dict[str, str]:
     test_status_map = {}
 
     pattern = r"(.+) - (passed|failed)"
@@ -87,7 +90,7 @@ def parse_log_rspec_transformed_json(log: str, test_spec: TestSpec) -> dict[str,
     return test_status_map
 
 
-def parse_log_jekyll(log: str, test_spec: TestSpec) -> dict[str, str]:
+def parse_log_jekyll(log: str, test_spec: "TestSpec") -> dict[str, str]:
     """
     Different jekyll instances use different test runners and log formats.
     This function selects the appropriate log parser based on the instance id.

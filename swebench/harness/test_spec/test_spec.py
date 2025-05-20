@@ -3,7 +3,7 @@ import json
 import platform
 
 from dataclasses import dataclass
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union, cast, Callable
 
 from swebench.harness.constants import (
     DEFAULT_DOCKER_SPECS,
@@ -24,6 +24,7 @@ from swebench.harness.test_spec.create_scripts import (
     make_env_script_list,
     make_eval_script_list,
 )
+from swebench.harness.log_parsers.python import parse_log_pytest
 
 
 @dataclass
@@ -44,6 +45,7 @@ class TestSpec:
     language: str
     docker_specs: dict
     namespace: Optional[str]
+    log_parser: Callable
     base_image_tag: str = LATEST
     env_image_tag: str = LATEST
     instance_image_tag: str = LATEST
@@ -186,7 +188,7 @@ def make_test_spec(
     assert instance_image_tag is not None, "instance_image_tag cannot be None"
     instance_id = instance[KEY_INSTANCE_ID]
     repo = instance["repo"]
-    version = instance.get("version")
+    version = instance.get("version", "none")
     base_commit = instance["base_commit"]
     problem_statement = instance.get("problem_statement")
     hints_text = instance.get("hints_text")  # Unused
@@ -206,13 +208,21 @@ def make_test_spec(
 
     env_name = "testbed"
     repo_directory = f"/{env_name}"
-    specs = MAP_REPO_VERSION_TO_SPECS[repo][version]
-    docker_specs = specs.get("docker_specs", {})
+    specs = {}
+    if repo in MAP_REPO_VERSION_TO_SPECS and not instance.get("test_cmds"):
+        specs = MAP_REPO_VERSION_TO_SPECS[repo][version]
+        docker_specs = specs.get("docker_specs", {})
+    else:
+        docker_specs = DEFAULT_DOCKER_SPECS
 
-    repo_script_list = make_repo_script_list(
-        specs, repo, repo_directory, base_commit, env_name
-    )
-    env_script_list = make_env_script_list(instance, specs, env_name)
+    repo_script_list = []
+    env_script_list = []
+    if not namespace and specs:
+        repo_script_list = make_repo_script_list(
+            specs, repo, repo_directory, base_commit, env_name
+        )
+        env_script_list = make_env_script_list(instance, specs, env_name)
+
     eval_script_list = make_eval_script_list(
         instance, specs, env_name, repo_directory, base_commit, test_patch
     )
@@ -221,6 +231,13 @@ def make_test_spec(
         arch = "arm64" if instance_id not in USE_X86 else "x86_64"
     else:
         arch = "x86_64"
+
+    log_parser = None
+    if instance.get("log_parser"):
+        log_parser_map = {
+            "pytest": parse_log_pytest,
+        }
+        log_parser = log_parser_map[instance["log_parser"]]  
 
     return TestSpec(
         instance_id=instance_id,
@@ -232,10 +249,11 @@ def make_test_spec(
         arch=arch,
         FAIL_TO_PASS=fail_to_pass,
         PASS_TO_PASS=pass_to_pass,
-        language=MAP_REPO_TO_EXT[repo],
+        language="py" if repo not in MAP_REPO_TO_EXT else MAP_REPO_TO_EXT[repo],
         docker_specs=docker_specs,
         namespace=namespace,
         base_image_tag=base_image_tag,
         env_image_tag=env_image_tag,
         instance_image_tag=instance_image_tag,
+        log_parser=log_parser,
     )

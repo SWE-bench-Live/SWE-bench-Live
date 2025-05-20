@@ -1,11 +1,14 @@
 import re
 import xml.etree.ElementTree as ET
+from typing import TYPE_CHECKING
 
 from swebench.harness.constants import TestStatus
-from swebench.harness.test_spec.test_spec import TestSpec
+
+if TYPE_CHECKING:
+    from swebench.harness.test_spec.test_spec import TestSpec
 
 
-def parse_log_redis(log: str, test_spec: TestSpec) -> dict[str, str]:
+def parse_log_redis(log: str, test_spec: "TestSpec") -> dict[str, str]:
     """
     Args:
         log (str): log content
@@ -32,7 +35,7 @@ def parse_log_redis(log: str, test_spec: TestSpec) -> dict[str, str]:
     return test_status_map
 
 
-def parse_log_jq(log: str, test_spec: TestSpec) -> dict[str, str]:
+def parse_log_jq(log: str, test_spec: "TestSpec") -> dict[str, str]:
     """
     Args:
         log (str): log content
@@ -54,7 +57,7 @@ def parse_log_jq(log: str, test_spec: TestSpec) -> dict[str, str]:
     return test_status_map
 
 
-def parse_log_doctest(log: str, test_spec: TestSpec) -> dict[str, str]:
+def parse_log_doctest(log: str, test_spec: "TestSpec") -> dict[str, str]:
     """
     Assumes test binary runs with -s -r=xml.
     """
@@ -91,7 +94,7 @@ def parse_log_doctest(log: str, test_spec: TestSpec) -> dict[str, str]:
     return test_status_map
 
 
-def parse_log_micropython_test(log: str, test_spec: TestSpec) -> dict[str, str]:
+def parse_log_micropython_test(log: str, test_spec: "TestSpec") -> dict[str, str]:
     test_status_map = {}
 
     pattern = r"^(pass|FAIL|skip)\s+(.+)$"
@@ -110,7 +113,7 @@ def parse_log_micropython_test(log: str, test_spec: TestSpec) -> dict[str, str]:
     return test_status_map
 
 
-def parse_log_googletest(log: str, test_spec: TestSpec) -> dict[str, str]:
+def parse_log_googletest(log: str, test_spec: "TestSpec") -> dict[str, str]:
     test_status_map = {}
 
     pattern = r"^.*\[\s*(OK|FAILED)\s*\]\s(.*)\s\(.*\)$"

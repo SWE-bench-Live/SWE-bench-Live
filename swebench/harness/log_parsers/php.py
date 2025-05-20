@@ -1,8 +1,11 @@
 import re
 from swebench.harness.constants import TestStatus
-from swebench.harness.test_spec.test_spec import TestSpec
+from typing import TYPE_CHECKING
 
-def parse_log_phpunit(log: str, test_spec: TestSpec) -> dict[str, str]:
+if TYPE_CHECKING:
+    from swebench.harness.test_spec.test_spec import TestSpec
+
+def parse_log_phpunit(log: str, test_spec: "TestSpec") -> dict[str, str]:
     """
     Parser for phpunit logs with the --testdox option.
     Args:

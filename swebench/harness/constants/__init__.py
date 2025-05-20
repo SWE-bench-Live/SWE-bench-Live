@@ -31,6 +31,8 @@ class SWEbenchInstance(TypedDict):
     hints_text: str
     created_at: str
     version: str
+    test_cmds: list[str]
+    log_parser: str
     FAIL_TO_PASS: str
     PASS_TO_PASS: str
     environment_setup_commit: str
@@ -74,6 +76,7 @@ DOCKER_WORKDIR = "/testbed"
 LOG_REPORT = "report.json"
 LOG_INSTANCE = "run_instance.log"
 LOG_TEST_OUTPUT = "test_output.txt"
+LOG_PRE_TEST_OUTPUT = "pre_test_output.txt"
 UTF8 = "utf-8"
 
 # Constants - Logging
